@@ -5,25 +5,18 @@
   "engines": {
     "node": ">=12.0.0"
   },
-  "files": [
-    "artifacts/contracts/**/*",
-    "!artifacts/contracts/test/*",
-    "contracts/**/*",
-    "!contracts/test/*"
-  ],
   "scripts": {
     "build": "yarn compile",
     "compile": "hardhat compile",
     "lint": "yarn lint:solidity && yarn lint:typescript",
     "lint:solidity": "solhint 'contracts/**/*.sol' --config ./node_modules/solhint-config-mimic/index.js",
     "lint:typescript": "eslint . --ext .ts",
-    "test": "hardhat test",
-    "test:fork": "yarn test --fork mainnet --block-number 14850081",
-    "prepublish": "yarn build"
+    "test": "hardhat test ./test/*.ts",
+    "test:fork": "yarn test --fork mainnet --block-number 14850081"
   },
   "dependencies": {
     "@mimic-fi/v1-chainlink-price-oracle": "0.0.4",
-    "@mimic-fi/v1-vault": "0.0.6",
+    "@mimic-fi/v1-vault": "0.0.11",
     "@openzeppelin/contracts": "4.1.0",
     "@uniswap/v2-core": "^1.0.1",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
@@ -31,7 +24,7 @@
     "@uniswap/v3-periphery": "^1.4.1"
   },
   "devDependencies": {
-    "@mimic-fi/v1-helpers": "0.0.4",
+    "@mimic-fi/v1-helpers": "^0.0.9",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@types/chai": "^4.2.18",
@@ -40,7 +33,7 @@
     "eslint-config-mimic": "^0.0.2",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.0.8",
-    "hardhat": "^2.4.1",
+    "hardhat": "^2.5.0",
     "hardhat-local-networks-config-plugin": "0.0.5",
     "mocha": "^6.2.3",
     "solhint-config-mimic": "^0.0.1",
