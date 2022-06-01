@@ -7,7 +7,7 @@ library Bytes {
         return self.length == 0;
     }
 
-    function concat(bytes memory self, address value) internal view returns (bytes memory) {
+    function concat(bytes memory self, address value) internal pure returns (bytes memory) {
         return abi.encodePacked(self, value);
     }
 

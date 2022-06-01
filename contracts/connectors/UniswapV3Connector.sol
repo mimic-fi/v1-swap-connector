@@ -97,7 +97,7 @@ abstract contract UniswapV3Connector is BaseConnector {
         require(IUniswapV3Factory(factory).getPool(token0, token1, fee) != address(0), 'INVALID_UNISWAP_POOL_FEE');
     }
 
-    function _encodePoolPath(address[] memory tokens, uint24[] memory fees) private view returns (bytes memory path) {
+    function _encodePoolPath(address[] memory tokens, uint24[] memory fees) private pure returns (bytes memory path) {
         path = new bytes(0);
         for (uint256 i = 0; i < fees.length; i++) path = path.concat(tokens[i]).concat(fees[i]);
         path = path.concat(tokens[fees.length]);

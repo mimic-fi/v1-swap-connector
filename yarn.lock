@@ -578,14 +578,21 @@
     "@mimic-fi/v1-vault" "0.0.6"
     "@openzeppelin/contracts" "^4.1.0"
 
-"@mimic-fi/v1-helpers@0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-helpers/-/v1-helpers-0.0.4.tgz#44287c0994edc12a4895433861f16be0742ca4c8"
-  integrity sha512-rDwfp8ePPCdcPZPD8nSm8fyl2ynI3hBYAbvL9u+JVuVL7oDnqOy4ORtyazWHVVkljDLssDon5yJpcZzIFihvww==
+"@mimic-fi/v1-helpers@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-helpers/-/v1-helpers-0.0.9.tgz#16e96dc651acc7c928c3ae60a2a57384d00c150e"
+  integrity sha512-xMIh7kbsjHbMmrbMKP6IjuUuEc0rC1tSbNgbNRBTALwVEivzDi3ZsSpSs/TR/d4DKSYcTFVbiPjMfrIqLXVCsw==
   dependencies:
     "@nomiclabs/hardhat-ethers" "^2.0.2"
     decimal.js "^10.3.1"
     ethers "^5.0.8"
+
+"@mimic-fi/v1-vault@0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-vault/-/v1-vault-0.0.11.tgz#1ac2a750e9d9fe55e293cc6e24366ec6c3abade7"
+  integrity sha512-W4L4HP9LDFEx5NvESjzeqyEp6Vjz9GaR0PvPdtWHxFiQaZboqTNWkf3/YYZ3TeE9Upw98dN+xuh3f0R7yGJzLw==
+  dependencies:
+    "@openzeppelin/contracts" "4.1.0"
 
 "@mimic-fi/v1-vault@0.0.6":
   version "0.0.6"
@@ -4694,10 +4701,10 @@ hardhat-watcher@^2.1.1:
   dependencies:
     chokidar "^3.5.3"
 
-hardhat@^2.4.1:
-  version "2.9.6"
-  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.9.6.tgz#9b75d8efccdfc20bdea35ffb0fd4e6a3f3ecf3cf"
-  integrity sha512-Vnm1iDfhbavNjvLxArt47rt6G3vPIV4Q/+pNgFkh6sfQH8JVf8px5VxiEs5cj4rPxmU+DXGKoalY+pK8fAL4oA==
+hardhat@^2.5.0:
+  version "2.9.7"
+  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.9.7.tgz#b31302b089486ec1c13c5a3dff18fe71f955f33b"
+  integrity sha512-PVSgTlM4Mtc4HNEoISpcM6rRNAK3ngqhxUaTmSw9eCtuVmtxTK86Tqnuq4zNPmlrtcuReXry9k3LGEnk2gJgbA==
   dependencies:
     "@ethereumjs/block" "^3.6.2"
     "@ethereumjs/blockchain" "^5.5.2"
