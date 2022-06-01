@@ -12,11 +12,11 @@ abstract contract UniswapV3Connector is BaseConnector {
 
     event UniswapV3PathSet(bytes32 indexed path, uint24 fee);
 
-    ISwapRouter internal immutable uniswapV3Router;
+    ISwapRouter private immutable uniswapV3Router;
 
-    mapping (bytes32 => uint24) internal _fees;
+    mapping (bytes32 => uint24) private _fees;
 
-    constructor (address _uniswapV3Router) {
+    constructor(address _uniswapV3Router) {
         uniswapV3Router = ISwapRouter(_uniswapV3Router);
     }
 
@@ -32,13 +32,10 @@ abstract contract UniswapV3Connector is BaseConnector {
         emit UniswapV3PathSet(path, fee);
     }
 
-    function _swapUniswapV3(
-        address tokenIn,
-        address tokenOut,
-        uint256 amountIn,
-        uint256 minAmountOut,
-        uint256 deadline
-    ) internal returns (uint256 amountOut) {
+    function _swapUniswapV3(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, uint256 deadline)
+        internal
+        returns (uint256 amountOut)
+    {
         IERC20(tokenIn).safeApprove(address(uniswapV3Router), amountIn);
         ISwapRouter.ExactInputSingleParams memory input;
         input.tokenIn = tokenIn;

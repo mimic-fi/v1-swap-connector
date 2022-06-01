@@ -1,20 +1,20 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
-import "../interfaces/IBalancerV2Vault.sol";
+import '../interfaces/IBalancerV2Vault.sol';
 
-import "./BaseConnector.sol";
+import './BaseConnector.sol';
 
 abstract contract BalancerV2Connector is BaseConnector {
     using SafeERC20 for IERC20;
 
     event BalancerV2PathSet(bytes32 indexed path, bytes32 poolId);
 
-    IBalancerV2Vault internal immutable balancerV2Vault;
+    IBalancerV2Vault private immutable balancerV2Vault;
 
-    mapping (bytes32 => bytes32) internal _poolIds;
+    mapping (bytes32 => bytes32) private _poolIds;
 
-    constructor (address _balancerV2Vault) {
+    constructor(address _balancerV2Vault) {
         balancerV2Vault = IBalancerV2Vault(_balancerV2Vault);
     }
 

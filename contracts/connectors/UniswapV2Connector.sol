@@ -11,9 +11,9 @@ abstract contract UniswapV2Connector is BaseConnector {
 
     event UniswapV2PathSet(bytes32 indexed path);
 
-    IUniswapV2Router02 internal immutable uniswapV2Router;
+    IUniswapV2Router02 private immutable uniswapV2Router;
 
-    constructor (address _uniswapV2Router) {
+    constructor(address _uniswapV2Router) {
         uniswapV2Router = IUniswapV2Router02(_uniswapV2Router);
     }
 
@@ -28,16 +28,19 @@ abstract contract UniswapV2Connector is BaseConnector {
         emit UniswapV2PathSet(path);
     }
 
-    function _swapUniswapV2(
-        address tokenIn,
-        address tokenOut,
-        uint256 amountIn,
-        uint256 minAmountOut,
-        uint256 deadline
-    ) internal returns (uint256 amountOut) {
+    function _swapUniswapV2(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, uint256 deadline)
+        internal
+        returns (uint256 amountOut)
+    {
         IERC20(tokenIn).safeApprove(address(uniswapV2Router), amountIn);
         address[] memory path = _path(tokenIn, tokenOut);
-        uint256[] memory amounts = uniswapV2Router.swapExactTokensForTokens(amountIn, minAmountOut, path, msg.sender, deadline);
+        uint256[] memory amounts = uniswapV2Router.swapExactTokensForTokens(
+            amountIn,
+            minAmountOut,
+            path,
+            msg.sender,
+            deadline
+        );
         require(amounts.length == 2, 'UNISWAP_INVALID_RESPONSE_LENGTH');
         return amounts[1];
     }

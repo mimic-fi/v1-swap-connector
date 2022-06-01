@@ -6,7 +6,8 @@ abstract contract BaseConnector is Ownable {
     enum DEX {
         UniswapV2,
         UniswapV3,
-        BalancerV2
+        BalancerV2,
+        BalancerV2Batch
     }
 
     function _setPathDex(address tokenA, address tokenB, DEX dex) internal virtual;
