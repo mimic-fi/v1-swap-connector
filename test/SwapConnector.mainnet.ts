@@ -8,7 +8,7 @@ import { Contract } from 'ethers'
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
-const WHALE_WITH_USDC = '0x55FE002aefF02F77364de339a1292923A15844B8'
+const WHALE = '0x55FE002aefF02F77364de339a1292923A15844B8'
 
 const UNISWAP_V2_ROUTER = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 const UNISWAP_V3_ROUTER = '0xE592427A0AEce92De3Edee1F18E0157C05861564'
@@ -52,17 +52,17 @@ describe('SwapConnector', () => {
     weth = await instanceAt('IERC20', WETH)
     wbtc = await instanceAt('IERC20', WBTC)
     usdc = await instanceAt('IERC20', USDC)
-    whale = await impersonate(WHALE_WITH_USDC, fp(100))
+    whale = await impersonate(WHALE, fp(100))
   })
 
   const itSingleSwapsCorrectly = () => {
     it('swaps correctly', async () => {
-      const previousBalance = await weth.balanceOf(whale.address)
+      const previousBalance = await weth.balanceOf(WHALE)
       await usdc.connect(whale).transfer(connector.address, amountIn)
 
       await connector.connect(whale).swap(USDC, WETH, amountIn, 0, MAX_UINT256, '0x')
 
-      const currentBalance = await weth.balanceOf(whale.address)
+      const currentBalance = await weth.balanceOf(WHALE)
       const expectedMinAmountOut = await getExpectedMinAmountOut(USDC, WETH)
       expect(currentBalance.sub(previousBalance)).to.be.at.least(expectedMinAmountOut)
     })
@@ -70,12 +70,12 @@ describe('SwapConnector', () => {
 
   const itBatchSwapsCorrectly = () => {
     it('swaps correctly', async () => {
-      const previousBalance = await wbtc.balanceOf(whale.address)
+      const previousBalance = await wbtc.balanceOf(WHALE)
       await usdc.connect(whale).transfer(connector.address, amountIn)
 
       await connector.connect(whale).swap(USDC, WBTC, amountIn, 0, MAX_UINT256, '0x')
 
-      const currentBalance = await wbtc.balanceOf(whale.address)
+      const currentBalance = await wbtc.balanceOf(WHALE)
       const expectedMinAmountOut = await getExpectedMinAmountOut(USDC, WBTC)
       expect(currentBalance.sub(previousBalance)).to.be.at.least(expectedMinAmountOut)
     })
