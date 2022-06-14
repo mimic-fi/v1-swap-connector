@@ -12,28 +12,53 @@ import './BaseConnector.sol';
 import '../utils/ArraysLib.sol';
 import '../utils/BytesLib.sol';
 
+/**
+ * @title UniswapV3Connector
+ * @dev Interfaces with Uniswap V3 to swap tokens
+ */
 abstract contract UniswapV3Connector is BaseConnector {
     using Bytes for bytes;
     using Arrays for address[];
     using SafeERC20 for IERC20;
 
+    /**
+     * @dev Internal data structure used to store UniswapV3 configurations
+     * @param fee Fee value used for the corresponding path. It is set to zero if the path requires a multi-hop.
+     * @param poolsPath UniswapV3-encoded path to execute the swap. It is set to zero if the path requires a single hop.
+     */
     struct UniswapV3Path {
         uint24 fee;
         bytes poolsPath;
     }
 
+    // Reference to UniswapV3 router
     ISwapRouter private immutable uniswapV3Router;
 
+    // List of UniswapV3Path configs indexed per path ID
     mapping (bytes32 => UniswapV3Path) private _paths;
 
+    /**
+     * @dev Initializes the UniswapV3Connector contract
+     * @param _uniswapV3Router Uniswap V3 router reference
+     */
     constructor(address _uniswapV3Router) {
         uniswapV3Router = ISwapRouter(_uniswapV3Router);
     }
 
+    /**
+     * @dev Tells the UniswapV3 config set for a path (tokenA, tokenB)
+     * @param tokenA One of the tokens in the path
+     * @param tokenB The other token in the path
+     */
     function getUniswapV3Path(address tokenA, address tokenB) external view returns (UniswapV3Path memory) {
         return _paths[getPath(tokenA, tokenB)];
     }
 
+    /**
+     * @dev Sets a UniswapV3 config for a path
+     * @param tokens Bidirectional list of tokens in the path
+     * @param fees List of fees to be used for each tokens pair in the tokens list
+     */
     function setUniswapV3Path(address[] memory tokens, uint24[] memory fees) external onlyOwner {
         require(tokens.length >= 2 && tokens.length == fees.length + 1, 'INVALID_UNISWAP_INPUT_LENGTH');
         address factory = IPeripheryImmutableState(address(uniswapV3Router)).factory();
@@ -46,6 +71,14 @@ abstract contract UniswapV3Connector is BaseConnector {
         path.poolsPath = singleSwap ? new bytes(0) : _encodePoolPath(tokens, fees);
     }
 
+    /**
+     * @dev Internal function to swap two tokens through UniswapV3
+     * @param tokenIn Token being sent
+     * @param tokenOut Token being received
+     * @param amountIn Amount of tokenIn being swapped
+     * @param minAmountOut Minimum amount of tokenOut willing to receive
+     * @param deadline Expiration timestamp to be used for the swap request
+     */
     function _swapUniswapV3(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut, uint256 deadline)
         internal
         returns (uint256 amountOut)
@@ -59,6 +92,14 @@ abstract contract UniswapV3Connector is BaseConnector {
                 : _batchSwap(poolsPath, amountIn, minAmountOut, deadline);
     }
 
+    /**
+     * @dev Internal function to swap two tokens through UniswapV3 using a single hop
+     * @param tokenIn Token being sent
+     * @param tokenOut Token being received
+     * @param amountIn Amount of tokenIn being swapped
+     * @param minAmountOut Minimum amount of tokenOut willing to receive
+     * @param deadline Expiration timestamp to be used for the swap request
+     */
     function _singleSwap(
         address tokenIn,
         address tokenOut,
@@ -79,6 +120,13 @@ abstract contract UniswapV3Connector is BaseConnector {
         return uniswapV3Router.exactInputSingle(input);
     }
 
+    /**
+     * @dev Internal function to swap two tokens through UniswapV3 using a multi hop
+     * @param poolsPath Path of pools to implement the requested swap
+     * @param amountIn Amount of the first token in the path to be swapped
+     * @param minAmountOut Minimum amount of the last token in the path willing to receive
+     * @param deadline Expiration timestamp to be used for the swap request
+     */
     function _batchSwap(bytes memory poolsPath, uint256 amountIn, uint256 minAmountOut, uint256 deadline)
         private
         returns (uint256 amountOut)
@@ -92,11 +140,23 @@ abstract contract UniswapV3Connector is BaseConnector {
         return uniswapV3Router.exactInput(input);
     }
 
+    /**
+     * @dev Internal function to validate that there is a pool created for tokenA and tokenB with a requested fee
+     * @param factory UniswapV3 factory to check against
+     * @param tokenA One of the tokens in the pool
+     * @param tokenB The other token in the pool
+     * @param fee Fee used by the pool
+     */
     function _validatePool(address factory, address tokenA, address tokenB, uint24 fee) private view {
         (address token0, address token1) = sortPoolTokens(tokenA, tokenB);
         require(IUniswapV3Factory(factory).getPool(token0, token1, fee) != address(0), 'INVALID_UNISWAP_POOL_FEE');
     }
 
+    /**
+     * @dev Internal function to encode a path of tokens with their corresponding fees
+     * @param tokens List of tokens to be encoded
+     * @param fees List of fees to use for each token pair
+     */
     function _encodePoolPath(address[] memory tokens, uint24[] memory fees) private pure returns (bytes memory path) {
         path = new bytes(0);
         for (uint256 i = 0; i < fees.length; i++) path = path.concat(tokens[i]).concat(fees[i]);
