@@ -18,6 +18,7 @@ import '../utils/BytesLib.sol';
  */
 abstract contract UniswapV3Connector is BaseConnector {
     using Bytes for bytes;
+    using Arrays for uint24[];
     using Arrays for address[];
     using SafeERC20 for IERC20;
 
@@ -46,9 +47,9 @@ abstract contract UniswapV3Connector is BaseConnector {
     }
 
     /**
-     * @dev Tells the UniswapV3 config set for a path (tokenA, tokenB)
-     * @param tokenA One of the tokens in the path
-     * @param tokenB The other token in the path
+     * @dev Tells the UniswapV3 config set for a pair (tokenA, tokenB)
+     * @param tokenA First token of the pair
+     * @param tokenB Second token of the pair
      */
     function getUniswapV3Path(address tokenA, address tokenB) external view returns (UniswapV3Path memory) {
         return _paths[getPath(tokenA, tokenB)];
@@ -56,14 +57,25 @@ abstract contract UniswapV3Connector is BaseConnector {
 
     /**
      * @dev Sets a UniswapV3 config for a path
-     * @param tokens Bidirectional list of tokens in the path
+     * @param tokens List of tokens in the path
      * @param fees List of fees to be used for each tokens pair in the tokens list
+     * @param bidirectional Whether the path should be applied on both sides or not
      */
-    function setUniswapV3Path(address[] memory tokens, uint24[] memory fees) external onlyOwner {
+    function setUniswapV3Path(address[] memory tokens, uint24[] memory fees, bool bidirectional) external onlyOwner {
         require(tokens.length >= 2 && tokens.length == fees.length + 1, 'INVALID_UNISWAP_INPUT_LENGTH');
         address factory = IPeripheryImmutableState(address(uniswapV3Router)).factory();
         for (uint256 i = 0; i < fees.length; i++) _validatePool(factory, tokens[i], tokens[i + 1], fees[i]);
 
+        _setUniswapV3Path(tokens, fees);
+        if (bidirectional) _setUniswapV3Path(tokens.reverse(), fees.reverse());
+    }
+
+    /**
+     * @dev Internal function to set a UniswapV3 config for a path
+     * @param tokens List of tokens in the path
+     * @param fees List of fees to be used for each tokens pair in the tokens list
+     */
+    function _setUniswapV3Path(address[] memory tokens, uint24[] memory fees) internal {
         bytes32 pathId = _setPathDex(tokens.first(), tokens.last(), DEX.UniswapV3);
         UniswapV3Path storage path = _paths[pathId];
         bool singleSwap = fees.length == 1;
@@ -148,7 +160,7 @@ abstract contract UniswapV3Connector is BaseConnector {
      * @param fee Fee used by the pool
      */
     function _validatePool(address factory, address tokenA, address tokenB, uint24 fee) private view {
-        (address token0, address token1) = sortPoolTokens(tokenA, tokenB);
+        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(IUniswapV3Factory(factory).getPool(token0, token1, fee) != address(0), 'INVALID_UNISWAP_POOL_FEE');
     }
 

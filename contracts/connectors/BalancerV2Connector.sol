@@ -17,6 +17,7 @@ import '../utils/BytesLib.sol';
  */
 abstract contract BalancerV2Connector is BaseConnector {
     using Arrays for address[];
+    using Arrays for bytes32[];
     using SafeERC20 for IERC20;
 
     /**
@@ -46,9 +47,9 @@ abstract contract BalancerV2Connector is BaseConnector {
     }
 
     /**
-     * @dev Tells the BalancerV2 config set for a path (tokenA, tokenB)
-     * @param tokenA One of the tokens in the path
-     * @param tokenB The other token in the path
+     * @dev Tells the BalancerV2 config set for a pair (tokenA, tokenB)
+     * @param tokenA First token of the pair
+     * @param tokenB Second token of the pair
      */
     function getBalancerV2Path(address tokenA, address tokenB) external view returns (BalancerV2Path memory) {
         return _paths[getPath(tokenA, tokenB)];
@@ -58,11 +59,25 @@ abstract contract BalancerV2Connector is BaseConnector {
      * @dev Sets a BalancerV2 config for a path
      * @param tokens Bidirectional list of tokens in the path
      * @param poolIds List of pool IDs to be used for each tokens pair in the tokens list
+     * @param bidirectional Whether the path should be applied on both sides or not
      */
-    function setBalancerV2Path(address[] memory tokens, bytes32[] memory poolIds) external onlyOwner {
+    function setBalancerV2Path(address[] memory tokens, bytes32[] memory poolIds, bool bidirectional)
+        external
+        onlyOwner
+    {
         require(tokens.length >= 2 && tokens.length == poolIds.length + 1, 'INVALID_BALANCER_INPUT_LENGTH');
         for (uint256 i = 0; i < poolIds.length; i++) _validatePool(poolIds[i], tokens[i], tokens[i + 1]);
 
+        _setBalancerV2Path(tokens, poolIds);
+        if (bidirectional) _setBalancerV2Path(tokens.reverse(), poolIds.reverse());
+    }
+
+    /**
+     * @dev Internal function to set a BalancerV2 config for a path
+     * @param tokens List of tokens in the path
+     * @param poolIds List of pool IDs to be used for each tokens pair in the tokens list
+     */
+    function _setBalancerV2Path(address[] memory tokens, bytes32[] memory poolIds) internal {
         bytes32 pathId = _setPathDex(tokens.first(), tokens.last(), DEX.BalancerV2);
         BalancerV2Path storage path = _paths[pathId];
         path.poolId = poolIds[0];
@@ -191,7 +206,7 @@ abstract contract BalancerV2Connector is BaseConnector {
 
     /**
      * @dev Internal function to validate that there is a pool created for tokenA and tokenB with a requested pool ID
-     * @param poolId ID of the pool used by Balancer
+     * @param poolId Balancer pool ID
      * @param tokenA One of the tokens in the pool
      * @param tokenB The other token in the pool
      */

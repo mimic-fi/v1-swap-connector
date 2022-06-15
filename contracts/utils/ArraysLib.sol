@@ -69,4 +69,31 @@ library Arrays {
         }
         return containsA && containsB;
     }
+
+    /**
+     * @dev Reverses an array of addresses. It does not check the length of the array.
+     */
+    function reverse(address[] memory arr) internal pure returns (address[] memory result) {
+        uint256 length = arr.length;
+        result = new address[](length);
+        for (uint256 i = 0; i < arr.length; i++) result[i] = arr[length - 1 - i];
+    }
+
+    /**
+     * @dev Reverses an array of bytes32. It does not check the length of the array.
+     */
+    function reverse(bytes32[] memory arr) internal pure returns (bytes32[] memory result) {
+        uint256 length = arr.length;
+        result = new bytes32[](length);
+        for (uint256 i = 0; i < arr.length; i++) result[i] = arr[length - 1 - i];
+    }
+
+    /**
+     * @dev Reverses an array of uint24. It does not check the length of the array.
+     */
+    function reverse(uint24[] memory arr) internal pure returns (uint24[] memory result) {
+        uint256 length = arr.length;
+        result = new uint24[](length);
+        for (uint256 i = 0; i < arr.length; i++) result[i] = arr[length - 1 - i];
+    }
 }
