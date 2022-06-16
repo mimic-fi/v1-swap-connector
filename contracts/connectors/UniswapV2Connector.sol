@@ -20,14 +20,14 @@ abstract contract UniswapV2Connector is BaseConnector {
     using SafeERC20 for IERC20;
 
     /**
-     * @dev Internal data structure used to store UniswapV3 configurations
+     * @dev Internal data structure used to store UniswapV2 configurations
      * @param hopTokens List of tokens to hop with to execute a swap, if empty it means the target is the pool itself.
      */
     struct UniswapV2Path {
         address[] hopTokens;
     }
 
-    // Reference to UniswapV3 router
+    // Reference to UniswapV2 router
     IUniswapV2Router02 private immutable uniswapV2Router;
 
     // List of UniswapV2Path configs indexed per path ID
