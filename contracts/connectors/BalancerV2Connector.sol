@@ -11,28 +11,54 @@ import './BaseConnector.sol';
 import '../utils/ArraysLib.sol';
 import '../utils/BytesLib.sol';
 
+/**
+ * @title BalancerV2Connector
+ * @dev Interfaces with Balancer V2 to swap tokens
+ */
 abstract contract BalancerV2Connector is BaseConnector {
     using Arrays for address[];
     using SafeERC20 for IERC20;
 
+    /**
+     * @dev Internal data structure used to store BalancerV2 configurations
+     * @param poolId
+     * @param hopTokens List of tokens to hop with to execute a swap, if empty it means the target is the pool itself.
+     * @param hopPoolIds
+     */
     struct BalancerV2Path {
         bytes32 poolId;
         address[] hopTokens;
         bytes32[] hopPoolIds;
     }
 
+    // Reference to BalancerV2 vault
     IBalancerV2Vault private immutable balancerV2Vault;
 
+    // List of BalancerV2Path configs indexed per path ID
     mapping (bytes32 => BalancerV2Path) private _paths;
 
+    /**
+     * @dev Initializes the BalancerV2Connector contract
+     * @param _balancerV2Vault Balancer V2 vault reference
+     */
     constructor(address _balancerV2Vault) {
         balancerV2Vault = IBalancerV2Vault(_balancerV2Vault);
     }
 
+    /**
+     * @dev Tells the BalancerV2 config set for a path (tokenA, tokenB)
+     * @param tokenA One of the tokens in the path
+     * @param tokenB The other token in the path
+     */
     function getBalancerV2Path(address tokenA, address tokenB) external view returns (BalancerV2Path memory) {
         return _paths[getPath(tokenA, tokenB)];
     }
 
+    /**
+     * @dev Sets a BalancerV2 config for a path
+     * @param tokens Bidirectional list of tokens in the path
+     * @param poolIds List of pool IDs to be used for each tokens pair in the tokens list
+     */
     function setBalancerV2Path(address[] memory tokens, bytes32[] memory poolIds) external onlyOwner {
         require(tokens.length >= 2 && tokens.length == poolIds.length + 1, 'INVALID_BALANCER_INPUT_LENGTH');
         for (uint256 i = 0; i < poolIds.length; i++) _validatePool(poolIds[i], tokens[i], tokens[i + 1]);
@@ -46,6 +72,14 @@ abstract contract BalancerV2Connector is BaseConnector {
         }
     }
 
+    /**
+     * @dev Internal function to swap two tokens through BalancerV2
+     * @param tokenIn Token being sent
+     * @param tokenOut Token being received
+     * @param amountIn Amount of tokenIn being swapped
+     * @param minAmountOut Minimum amount of tokenOut willing to receive
+     * @param deadline Expiration timestamp to be used for the swap request
+     */
     function _swapBalancerV2(
         address tokenIn,
         address tokenOut,
@@ -61,6 +95,15 @@ abstract contract BalancerV2Connector is BaseConnector {
                 : _batchSwap(path, tokenIn, tokenOut, amountIn, minAmountOut, deadline);
     }
 
+    /**
+     * @dev Internal function to swap two tokens through BalancerV2 using a single hop
+     * @param poolId ID of the pool used by Balancer to swap with
+     * @param tokenIn Token being sent
+     * @param tokenOut Token being received
+     * @param amountIn Amount of tokenIn being swapped
+     * @param minAmountOut Minimum amount of tokenOut willing to receive
+     * @param deadline Expiration timestamp to be used for the swap request
+     */
     function _singleSwap(
         bytes32 poolId,
         address tokenIn,
@@ -79,6 +122,15 @@ abstract contract BalancerV2Connector is BaseConnector {
         return balancerV2Vault.swap(swap, _fundManagement(), minAmountOut, deadline);
     }
 
+    /**
+     * @dev Internal function to swap two tokens through BalancerV2 using a multi hop
+     * @param path BalancerV2Path config to execute for the requested swap
+     * @param tokenIn Token being sent
+     * @param tokenOut Token being received
+     * @param amountIn Amount of tokenIn to be swapped
+     * @param minAmountOut Minimum amount of tokenOut willing to receive
+     * @param deadline Expiration timestamp to be used for the swap request
+     */
     function _batchSwap(
         BalancerV2Path storage path,
         address tokenIn,
@@ -124,6 +176,9 @@ abstract contract BalancerV2Connector is BaseConnector {
         return uint256(-intAmountOut);
     }
 
+    /**
+     * @dev Internal function to build the fund management struct required by Balancer for swaps
+     */
     function _fundManagement() private view returns (IBalancerV2Vault.FundManagement memory) {
         return
             IBalancerV2Vault.FundManagement({
@@ -134,6 +189,12 @@ abstract contract BalancerV2Connector is BaseConnector {
             });
     }
 
+    /**
+     * @dev Internal function to validate that there is a pool created for tokenA and tokenB with a requested pool ID
+     * @param poolId ID of the pool used by Balancer
+     * @param tokenA One of the tokens in the pool
+     * @param tokenB The other token in the pool
+     */
     function _validatePool(bytes32 poolId, address tokenA, address tokenB) private view {
         (address pool, ) = balancerV2Vault.getPool(poolId);
         require(pool != address(0), 'INVALID_BALANCER_POOL_ID');
