@@ -48,9 +48,9 @@ contract SwapConnector is ISwapConnector, UniswapV3Connector, UniswapV2Connector
     }
 
     /**
-     * @dev Tells the DEX set for a path (tokenA, tokenB)
-     * @param tokenA One of the tokens in the path
-     * @param tokenB The other token in the path
+     * @dev Tells the DEX set for a path given a pair (tokenA, tokenB)
+     * @param tokenA First token of the pair
+     * @param tokenB Second token of the pair
      */
     function getPathDex(address tokenA, address tokenB) public view returns (DEX) {
         return pathDex[getPath(tokenA, tokenB)];
@@ -107,7 +107,7 @@ contract SwapConnector is ISwapConnector, UniswapV3Connector, UniswapV2Connector
     }
 
     /**
-     * @dev Internal function to set a DEX for a path (tokenA, tokenB)
+     * @dev Internal function to set a DEX for a path given a pair (tokenA, tokenB)
      * @return path ID of the path being set
      */
     function _setPathDex(address tokenA, address tokenB, DEX dex) internal override returns (bytes32 path) {

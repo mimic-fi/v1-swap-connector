@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
@@ -19,14 +20,14 @@ abstract contract UniswapV2Connector is BaseConnector {
     using SafeERC20 for IERC20;
 
     /**
-     * @dev Internal data structure used to store UniswapV3 configurations
+     * @dev Internal data structure used to store UniswapV2 configurations
      * @param hopTokens List of tokens to hop with to execute a swap, if empty it means the target is the pool itself.
      */
     struct UniswapV2Path {
         address[] hopTokens;
     }
 
-    // Reference to UniswapV3 router
+    // Reference to UniswapV2 router
     IUniswapV2Router02 private immutable uniswapV2Router;
 
     // List of UniswapV2Path configs indexed per path ID
@@ -41,9 +42,9 @@ abstract contract UniswapV2Connector is BaseConnector {
     }
 
     /**
-     * @dev Tells the UniswapV2 config set for a path (tokenA, tokenB)
-     * @param tokenA One of the tokens in the path
-     * @param tokenB The other token in the path
+     * @dev Tells the UniswapV2 config set for a pair (tokenA, tokenB)
+     * @param tokenA First token of the pair
+     * @param tokenB Second token of the pair
      */
     function getUniswapV2Path(address tokenA, address tokenB) external view returns (UniswapV2Path memory) {
         return _paths[getPath(tokenA, tokenB)];
@@ -51,13 +52,23 @@ abstract contract UniswapV2Connector is BaseConnector {
 
     /**
      * @dev Sets a UniswapV2 config for a path
-     * @param tokens Bidirectional list of tokens in the path
+     * @param tokens List of tokens in the path
+     * @param bidirectional Whether the path should be applied on both sides or not
      */
-    function setUniswapV2Path(address[] memory tokens) external onlyOwner {
+    function setUniswapV2Path(address[] memory tokens, bool bidirectional) external onlyOwner {
         require(tokens.length >= 2, 'INVALID_UNISWAP_INPUT_LENGTH');
         address factory = uniswapV2Router.factory();
         for (uint256 i = 0; i < tokens.length - 1; i++) _validatePool(factory, tokens[i], tokens[i + 1]);
 
+        _setUniswapV2Path(tokens);
+        if (bidirectional) _setUniswapV2Path(tokens.reverse());
+    }
+
+    /**
+     * @dev Internal function to set a UniswapV2 config for a path
+     * @param tokens List of tokens in the path
+     */
+    function _setUniswapV2Path(address[] memory tokens) internal {
         bytes32 pathId = _setPathDex(tokens.first(), tokens.last(), DEX.UniswapV2);
         UniswapV2Path storage path = _paths[pathId];
         for (uint256 i = 2; i < tokens.length; i++) path.hopTokens.push(tokens[i - 1]);
@@ -90,8 +101,8 @@ abstract contract UniswapV2Connector is BaseConnector {
 
     /**
      * @dev Internal method to fetch the path between two tokens based on the config set
-     * @param tokenA One of the tokens in the path
-     * @param tokenB The other token in the path
+     * @param tokenA First token of the pair
+     * @param tokenB Second token of the pair
      */
     function _buildPoolPath(address tokenA, address tokenB) private view returns (address[] memory) {
         UniswapV2Path storage path = _paths[getPath(tokenA, tokenB)];
@@ -102,8 +113,8 @@ abstract contract UniswapV2Connector is BaseConnector {
     /**
      * @dev Internal function to validate that there is a pool created for tokenA and tokenB
      * @param factory UniswapV2 factory to check against
-     * @param tokenA One of the tokens in the pool
-     * @param tokenB The other token in the pool
+     * @param tokenA First token of the pair
+     * @param tokenB Second token of the pair
      */
     function _validatePool(address factory, address tokenA, address tokenB) private view {
         address pool = IUniswapV2Factory(factory).getPair(tokenA, tokenB);
