@@ -569,37 +569,26 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@mimic-fi/v1-chainlink-price-oracle@0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-chainlink-price-oracle/-/v1-chainlink-price-oracle-0.0.4.tgz#1282223d5872ded018fa9549a594ddea2b0c306e"
-  integrity sha512-XJi/aQXrfACgs5wfW5IG/a+VH84INCxAFVvBYho5U77dXzHDI5okgrJ59OyFn8p8ssr6gpyvXXh0JDGuvp1Z2A==
-  dependencies:
-    "@chainlink/contracts" "^0.2.1"
-    "@mimic-fi/v1-vault" "0.0.6"
-    "@openzeppelin/contracts" "^4.1.0"
-
-"@mimic-fi/v1-helpers@0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-helpers/-/v1-helpers-0.0.10.tgz#cb7d3eab2b404e17b9a8b9ce407abe05735d8b3b"
-  integrity sha512-mGbwLMe2EgKdCoW8Y73EFR9h4NuS5IgKVdkuyk5oR46KyTsAoVOLu7lhm/jdA5xjoLj24DeIQR/56HH/n4taow==
+"@mimic-fi/v1-helpers@0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-helpers/-/v1-helpers-0.0.12.tgz#5381433d4c5a4c44fc0f5af09547f46a1d7c629b"
+  integrity sha512-Xmt/eRTsS0XboM5EeDrbR9JAAhkQ4aBZHAQrhWdxcps7kezITbhhHSiwa4bIKgTO/u/oc8s//mKz6pMz+I+Nhw==
   dependencies:
     "@nomiclabs/hardhat-ethers" "^2.0.2"
+    "@types/chai" "^4.2.18"
+    "@types/mocha" "^8.2.2"
+    chai "^4.2.0"
     decimal.js "^10.3.1"
     ethers "^5.0.8"
 
-"@mimic-fi/v1-vault@0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-vault/-/v1-vault-0.0.11.tgz#1ac2a750e9d9fe55e293cc6e24366ec6c3abade7"
-  integrity sha512-W4L4HP9LDFEx5NvESjzeqyEp6Vjz9GaR0PvPdtWHxFiQaZboqTNWkf3/YYZ3TeE9Upw98dN+xuh3f0R7yGJzLw==
+"@mimic-fi/v1-price-oracle@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-price-oracle/-/v1-price-oracle-0.0.2.tgz#ef65fd3f50f1d141acd6797423e809ad4ddb765c"
+  integrity sha512-jRRjnpxbF/fotoDvJLKYwLMhEAKorjs5cPvZn5qlk+FBFeVXQbJm/GXu+g7+Cnlm7jXoOhbWlAhKQG6bsWcFhQ==
   dependencies:
-    "@openzeppelin/contracts" "4.1.0"
-
-"@mimic-fi/v1-vault@0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@mimic-fi/v1-vault/-/v1-vault-0.0.6.tgz#8cdd3bacc47d450cd35afd417876d6ecd36cad77"
-  integrity sha512-qfwHw6HdnNMoI0v1cRGDA/TsdvmlJftzFCzx/NGrFPz4GRG8ivDQI+aGz6OGIl0C7kbzKcO7WQLaO7e91lU8IQ==
-  dependencies:
-    "@openzeppelin/contracts" "^4.1.0"
+    "@chainlink/contracts" "^0.2.1"
+    "@mimic-fi/v1-helpers" "0.0.12"
+    "@openzeppelin/contracts" "4.7.0"
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -640,15 +629,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.2-solc-0.7.tgz#38f4dbab672631034076ccdf2f3201fab1726635"
   integrity sha512-W6QmqgkADuFcTLzHL8vVoNBtkwjvQRpYIAom7KiUNoLKghyx3FgH0GBjt8NRvigV1ZmMOBllvE1By1C+bi8WpA==
 
-"@openzeppelin/contracts@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.1.0.tgz#baec89a7f5f73e3d8ea582a78f1980134b605375"
-  integrity sha512-TihZitscnaHNcZgXGj9zDLDyCqjziytB4tMCwXq0XimfWkAjBYyk5/pOsDbbwcavhlc79HhpTEpQcrMnPVa1mw==
-
-"@openzeppelin/contracts@^4.1.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.6.0.tgz#c91cf64bc27f573836dba4122758b4743418c1b3"
-  integrity sha512-8vi4d50NNya/bQqCmaVzvHNmwHvS0OBKb7HNtuNwEE3scXWrP31fKQoGxNMT+KbzmrNZzatE3QK5p2gFONI/hg==
+"@openzeppelin/contracts@4.7.0":
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.7.0.tgz#3092d70ea60e3d1835466266b1d68ad47035a2d5"
+  integrity sha512-52Qb+A1DdOss8QvJrijYYPSf32GUg2pGaG/yCxtaA3cu4jduouTdg4XZSMLW9op54m1jH7J8hoajhHKOPsoJFw==
 
 "@resolver-engine/core@^0.3.3":
   version "0.3.3"

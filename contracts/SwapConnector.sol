@@ -2,12 +2,13 @@
 
 pragma solidity ^0.8.0;
 
+import '@mimic-fi/v1-helpers/contracts/math/FixedPoint.sol';
+import '@mimic-fi/v1-price-oracle/contracts/IPriceOracle.sol';
+
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@mimic-fi/v1-vault/contracts/libraries/FixedPoint.sol';
-import '@mimic-fi/v1-vault/contracts/interfaces/IPriceOracle.sol';
-import '@mimic-fi/v1-vault/contracts/interfaces/ISwapConnector.sol';
 
+import './ISwapConnector.sol';
 import './connectors/UniswapV3Connector.sol';
 import './connectors/UniswapV2Connector.sol';
 import './connectors/BalancerV2Connector.sol';
@@ -57,40 +58,21 @@ contract SwapConnector is ISwapConnector, UniswapV3Connector, UniswapV2Connector
     }
 
     /**
-     * @dev Tells an estimated amount out for a swap using the price oracle
-     * @param tokenIn Token being sent
-     * @param tokenOut Token being received
-     * @param amountIn Amount of tokenIn being swapped
-     */
-    function getAmountOut(address tokenIn, address tokenOut, uint256 amountIn)
-        external
-        view
-        override
-        returns (uint256)
-    {
-        uint256 price = priceOracle.getTokenPrice(tokenOut, tokenIn);
-        return amountIn.mulUp(price);
-    }
-
-    /**
      * @dev Swaps two tokens
      * @param tokenIn Token being sent
      * @param tokenOut Token being received
      * @param amountIn Amount of tokenIn being swapped
      * @param minAmountOut Minimum amount of tokenOut willing to receive
-     * @param deadline Expiration timestamp to be used for the swap request
      */
     function swap(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 minAmountOut,
-        uint256 deadline,
         bytes memory /* data */
-    ) external override returns (uint256 remainingIn, uint256 amountOut) {
+    ) external override returns (uint256 amountOut) {
         DEX dex = getPathDex(tokenIn, tokenOut);
-        amountOut = _swap(dex, tokenIn, tokenOut, amountIn, minAmountOut, deadline);
-        return (0, amountOut);
+        amountOut = _swap(dex, tokenIn, tokenOut, amountIn, minAmountOut, block.timestamp);
     }
 
     /**

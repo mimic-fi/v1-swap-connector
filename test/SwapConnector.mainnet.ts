@@ -1,4 +1,4 @@
-import { assertEvent, deploy, fp, impersonate, instanceAt, MAX_UINT256 } from '@mimic-fi/v1-helpers'
+import { assertEvent, deploy, fp, impersonate, instanceAt } from '@mimic-fi/v1-helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 import { expect } from 'chai'
 import { BigNumber, Contract } from 'ethers'
@@ -41,10 +41,10 @@ describe('SwapConnector', () => {
   before('create price oracle', async () => {
     const priceOracleTokens: string[] = [USDC, WBTC, WETH]
     const priceOracleFeeds: string[] = [CHAINLINK_ORACLE_USDC_ETH, CHAINLINK_ORACLE_WBTC_ETH, PRICE_ONE_ORACLE]
-    priceOracle = await deploy(
-      '@mimic-fi/v1-chainlink-price-oracle/artifacts/contracts/ChainLinkPriceOracle.sol/ChainLinkPriceOracle',
-      [priceOracleTokens, priceOracleFeeds]
-    )
+    priceOracle = await deploy('@mimic-fi/v1-price-oracle/artifacts/contracts/PriceOracle.sol/PriceOracle', [
+      priceOracleTokens,
+      priceOracleFeeds,
+    ])
   })
 
   before('create swap connector', async () => {
@@ -65,7 +65,7 @@ describe('SwapConnector', () => {
       const previousBalance = await weth.balanceOf(WHALE)
       await usdc.connect(whale).transfer(connector.address, amountIn)
 
-      await connector.connect(whale).swap(USDC, WETH, amountIn, 0, MAX_UINT256, '0x')
+      await connector.connect(whale).swap(USDC, WETH, amountIn, 0, '0x')
 
       const currentBalance = await weth.balanceOf(WHALE)
       const expectedMinAmountOut = await getExpectedMinAmountOut(USDC, WETH, amountIn)
@@ -77,7 +77,7 @@ describe('SwapConnector', () => {
       const previousBalance = await usdc.balanceOf(WHALE)
       await weth.connect(whale).transfer(connector.address, amountIn)
 
-      await connector.connect(whale).swap(WETH, USDC, amountIn, 0, MAX_UINT256, '0x')
+      await connector.connect(whale).swap(WETH, USDC, amountIn, 0, '0x')
 
       const currentBalance = await usdc.balanceOf(WHALE)
       const expectedMinAmountOut = await getExpectedMinAmountOut(WETH, USDC, amountIn)
@@ -91,7 +91,7 @@ describe('SwapConnector', () => {
       const previousBalance = await wbtc.balanceOf(WHALE)
       await usdc.connect(whale).transfer(connector.address, amountIn)
 
-      await connector.connect(whale).swap(USDC, WBTC, amountIn, 0, MAX_UINT256, '0x')
+      await connector.connect(whale).swap(USDC, WBTC, amountIn, 0, '0x')
 
       const currentBalance = await wbtc.balanceOf(WHALE)
       const expectedMinAmountOut = await getExpectedMinAmountOut(USDC, WBTC, amountIn)
@@ -103,7 +103,7 @@ describe('SwapConnector', () => {
       const previousBalance = await usdc.balanceOf(WHALE)
       await wbtc.connect(whale).transfer(connector.address, amountIn)
 
-      await connector.connect(whale).swap(WBTC, USDC, amountIn, 0, MAX_UINT256, '0x')
+      await connector.connect(whale).swap(WBTC, USDC, amountIn, 0, '0x')
 
       const currentBalance = await usdc.balanceOf(WHALE)
       const expectedMinAmountOut = await getExpectedMinAmountOut(WBTC, USDC, amountIn)
